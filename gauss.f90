@@ -6,7 +6,7 @@ program gauss
     complex(DP),allocatable   :: psi(:,:)
     complex(DP),allocatable   :: phi(:,:)
     complex                   :: cj=(0.,1.), A
-    complex(DP),allocatable   :: matrx(:,:), matrx2(:,:), B(:), V(:)
+    complex(DP),allocatable   :: matrx(:,:), matrx2(:,:),inv_matrx2(:,:), B(:), V(:)
     integer(DP)               :: npts=100, i, j
     complex(DP),external      :: begin
     real(DP)                  :: x0=-50, xf=50, x, deltax, t, deltat=1
@@ -77,10 +77,19 @@ program gauss
     !do i=0,5
     !      write(*,*)matrx2(i,0:5)
     !end do
-    !-------------------------------------------
+    !--------------------------------------------
     allocate(phi(0:npts,0:0))
     phi=matmul(matrx,psi) 
     !write(*,*)phi
+    !--------------------------------------------
+    allocate(inv_matrx2(0:npts,0:npts))
+    print*,"test"
+    call inv_mat(matrx2,inv_matrx2)
+    print*,"test2"
+    inv_matrx2=matmul(matrx2,inv_matrx2)
+    do i=0, 5 
+          write(*,*)inv_matrx2(i,0:5)
+    end do
     
 
 
