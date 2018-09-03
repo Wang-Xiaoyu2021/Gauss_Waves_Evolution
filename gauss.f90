@@ -92,19 +92,6 @@ program gauss
     end do
     
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 end program
 
 
