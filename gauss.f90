@@ -4,22 +4,25 @@ program gauss
     real                      :: Pi = 3.1415926
     integer,parameter         :: DP = 8
     complex(DP),allocatable   :: psi(:,:), psinx(:,:), output(:,:)
-    complex(DP),allocatable   :: phi(:,:)
+    complex(DP),allocatable   :: phi(:,:), temp(:,:)
     complex                   :: cj=(0.,1.), A
     complex(DP),allocatable   :: matrx(:,:), matrx2(:,:),inv_matrx2(:,:), B(:), V(:)
     integer(DP)               :: npts=100, i, j
     complex(DP),external      :: begin
     real(DP)                  :: x0=-50, xf=50, x, deltax, t, deltat=1
     real(DP),allocatable      :: realoutput(:,:)
+    character(DP)             :: temp1
     deltax=(xf-x0)/npts
     !------------------------------------------
     !定义初始时刻的波包形状
     allocate(psi(0:npts,0:0))
+    allocate(temp(0:npts,0:0))
     x=x0
     do i=0, npts
         psi(i,0) = begin(x,Pi,cj)
         x=x+1
     end do
+    temp=psi
     !------------------------------------------
     !do i=0, npts
     !      psi(i)=abs(psi(i))
@@ -91,9 +94,9 @@ program gauss
         phi=matmul(matrx,psi) 
         !write(*,*)phi
     !--------------------------------------------
-        print*,"test"
+        !print*,"test"
         call inv_mat(matrx2,inv_matrx2)
-        print*,"test2"
+        !print*,"test2"
         inv_matrx2=matmul(matrx2,inv_matrx2)
         !do i=0, 5 
         !      write(*,*)inv_matrx2(i,0:5)
@@ -105,12 +108,27 @@ program gauss
         output(:,i:i)=psinx
         psi=psinx
     end do
+    output(0:npts,0:0)=temp
     output=abs(output)
     allocate(realoutput(0:npts,0:npts))
     realoutput=real(output)
     !write(*,*) realoutput
     open(1,file="realoutput.dat")
+    do i=0,100
+        write(temp1,'(a,i0)') 't',i
+        write(1,'(a15)',advance='no')trim(temp1)
+    end do
+    write(1,*)char(10) 
+    do i=0,100
+        do j=0,100
+            write(1,'(f15.7)',advance='no')realoutput(i:i,j:j)
+        end do
+    write(1,*)char(10) 
+    end do
+   
+
     close(1)
+
 
 
 

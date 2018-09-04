@@ -4,7 +4,6 @@ subroutine inv_mat(A,invA)
    complex(kind = 8)        :: A(0:100,0:100),invA(0:100,0:100),A_old(0:100,0:100)
    complex(kind = 8)        :: t
    integer(kind = 8)        :: d
-   print*,"test3"
    A_old=A
    l=1
    do k=0,100

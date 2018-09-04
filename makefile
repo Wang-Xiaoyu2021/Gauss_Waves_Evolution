@@ -3,7 +3,7 @@ gauss : gauss.f90
 	./gauss
 .PHONY : clean
 clean : 
-	rm gauss
+	rm gauss realoutput.dat
 	make clean
 
 
