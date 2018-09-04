@@ -9,7 +9,7 @@ program gauss
     complex(DP),allocatable   :: matrx(:,:), matrx2(:,:),inv_matrx2(:,:), B(:), V(:)
     integer(DP)               :: npts=100, i, j
     complex(DP),external      :: begin
-    real(DP)                  :: x0=-50, xf=50, x, deltax, t, deltat=1
+    real(DP)                  :: x0=-50, xf=50, x, deltax, t, deltat=2
     real(DP),allocatable      :: realoutput(:,:)
     character(DP)             :: temp1
     deltax=(xf-x0)/npts
@@ -111,37 +111,25 @@ program gauss
     output(0:npts,0:0)=temp
     output=abs(output)
     allocate(realoutput(0:npts,0:npts))
-    realoutput=real(output)
+    realoutput=real(output)**2
+    do i=0,100
+        realoutput(i,0:0)=i*deltax
+    end do
     !write(*,*) realoutput
     open(1,file="realoutput.dat")
-    do i=0,100
+    write(1,'(a15)',advance='no')'x'
+    do i=1,100
         write(temp1,'(a,i0)') 't',i
         write(1,'(a15)',advance='no')trim(temp1)
     end do
-    write(1,*)char(10) 
+    write(1,*)'' 
     do i=0,100
         do j=0,100
             write(1,'(f15.7)',advance='no')realoutput(i:i,j:j)
         end do
-    write(1,*)char(10) 
+            write(1,*)''
     end do
-   
-
     close(1)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 end program
 
 
