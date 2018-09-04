@@ -3,15 +3,17 @@ program gauss
     !------------------------------------------
     real                      :: Pi = 3.1415926
     integer,parameter         :: DP = 8
-    complex(DP),allocatable   :: psi(:,:)
+    complex(DP),allocatable   :: psi(:,:), psinx(:,:), output(:,:)
     complex(DP),allocatable   :: phi(:,:)
     complex                   :: cj=(0.,1.), A
     complex(DP),allocatable   :: matrx(:,:), matrx2(:,:),inv_matrx2(:,:), B(:), V(:)
     integer(DP)               :: npts=100, i, j
     complex(DP),external      :: begin
     real(DP)                  :: x0=-50, xf=50, x, deltax, t, deltat=1
+    real(DP),allocatable      :: realoutput(:,:)
     deltax=(xf-x0)/npts
     !------------------------------------------
+    !定义初始时刻的波包形状
     allocate(psi(0:npts,0:0))
     x=x0
     do i=0, npts
@@ -24,6 +26,7 @@ program gauss
     !end do
     !write(*,*)psi
     !------------------------------------------
+    !定义第一个矩阵，用于计算phi的，在这期间定义了势能形状
     allocate(matrx(0:npts,0:100))
     matrx(:,:)=0
     !write(*,*)matrx
@@ -59,6 +62,7 @@ program gauss
     !      write(*,*)matrx(i,0:5)
     !end do
     !-------------------------------------------
+    !定义第二个矩阵，用于求逆矩阵进而求解下一时刻的psi
     allocate(matrx2(0:npts,0:100))
     matrx2(:,:)=0
     do i=0, npts-1
@@ -78,19 +82,47 @@ program gauss
     !      write(*,*)matrx2(i,0:5)
     !end do
     !--------------------------------------------
+    !求解phi
+    allocate(output(0:npts,0:npts))
     allocate(phi(0:npts,0:0))
-    phi=matmul(matrx,psi) 
-    !write(*,*)phi
-    !--------------------------------------------
     allocate(inv_matrx2(0:npts,0:npts))
-    print*,"test"
-    call inv_mat(matrx2,inv_matrx2)
-    print*,"test2"
-    inv_matrx2=matmul(matrx2,inv_matrx2)
-    do i=0, 5 
-          write(*,*)inv_matrx2(i,0:5)
+    allocate(psinx(0:npts,0:0))
+    do i=1,100
+        phi=matmul(matrx,psi) 
+        !write(*,*)phi
+    !--------------------------------------------
+        print*,"test"
+        call inv_mat(matrx2,inv_matrx2)
+        print*,"test2"
+        inv_matrx2=matmul(matrx2,inv_matrx2)
+        !do i=0, 5 
+        !      write(*,*)inv_matrx2(i,0:5)
+        !end do
+        psinx=matmul(inv_matrx2,phi)
+        !do i=0,5
+        !    write(*,*)psinx(i,0:5)
+        !end do 
+        output(:,i:i)=psinx
+        psi=psinx
     end do
-    
+    output=abs(output)
+    allocate(realoutput(0:npts,0:npts))
+    realoutput=real(output)
+    !write(*,*) realoutput
+    open(1,file="realoutput.dat")
+    close(1)
+
+
+
+
+
+
+
+
+
+
+
+
 
 end program
 
