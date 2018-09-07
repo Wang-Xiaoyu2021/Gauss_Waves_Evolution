@@ -3,24 +3,24 @@ program gauss
     !------------------------------------------
     real                      :: Pi = 3.1415926
     integer,parameter         :: DP = 8
-    complex(DP),allocatable   :: psi(:,:), psinx(:,:), output(:,:)
-    complex(DP),allocatable   :: phi(:,:), temp(:,:)
+    complex(DP),allocatable   :: psi(:), psinx(:), output(:,:)
+    complex(DP),allocatable   :: phi(:), temp(:)
     complex                   :: cj=(0.,1.), A
     complex(DP),allocatable   :: matrx(:,:), matrx2(:,:),inv_matrx2(:,:), B(:), V(:)
-    integer(DP)               :: npts=100, i, j
+    integer(DP)               :: npts, i, j, ntts
     complex(DP),external      :: begin
-    real(DP)                  :: x0=-50, xf=50, x, deltax, t, deltat=2
+    real(DP)                  :: x0=0, xf=200, x, deltax=1, t=200, deltat=2
     real(DP),allocatable      :: realoutput(:,:)
     character(DP)             :: temp1
-    deltax=(xf-x0)/npts
+    npts=(xf-x0)/deltax
+    ntts=t/deltat
     !------------------------------------------
-    !定义初始时刻的波包形状
-    allocate(psi(0:npts,0:0))
-    allocate(temp(0:npts,0:0))
-    x=x0
+    !定义初始时刻的波包形状，通过调用本程序内的一个子函数
+    allocate(psi(0:npts))
+    allocate(temp(0:npts))
     do i=0, npts
-        psi(i,0) = begin(x,Pi,cj)
-        x=x+1
+        x=i-20
+        psi(i) = begin(x,Pi,cj)
     end do
     temp=psi
     !------------------------------------------
@@ -30,7 +30,7 @@ program gauss
     !write(*,*)psi
     !------------------------------------------
     !定义第一个矩阵，用于计算phi的，在这期间定义了势能形状
-    allocate(matrx(0:npts,0:100))
+    allocate(matrx(0:npts,0:npts))
     matrx(:,:)=0
     !write(*,*)matrx
     A=cj*0.25*deltat/(deltax**2)
@@ -49,10 +49,10 @@ program gauss
     !      write(*,*)matrx(i,0:5)
     !end do
     allocate(B(0:npts))
-    allocate(V(0:100))
+    allocate(V(0:npts))
     V(:)=0
-    V(10:15)=1
-    V(85:90)=1
+    !V(10:15)=1
+    !V(85:90)=1
     do i=0, npts
         B(i)=cj*0.5*deltat*V(i)
     end do
@@ -66,7 +66,7 @@ program gauss
     !end do
     !-------------------------------------------
     !定义第二个矩阵，用于求逆矩阵进而求解下一时刻的psi
-    allocate(matrx2(0:npts,0:100))
+    allocate(matrx2(0:npts,0:npts))
     matrx2(:,:)=0
     do i=0, npts-1
         j=i+1
@@ -85,19 +85,22 @@ program gauss
     !      write(*,*)matrx2(i,0:5)
     !end do
     !--------------------------------------------
-    !求解phi
-    allocate(output(0:npts,0:npts))
-    allocate(phi(0:npts,0:0))
+    !求解phi，即为右侧矩阵乘积，用matmul函数实现
+    allocate(output(0:npts,0:ntts))
+    allocate(phi(0:npts))
     allocate(inv_matrx2(0:npts,0:npts))
-    allocate(psinx(0:npts,0:0))
-    do i=1,100
+    allocate(psinx(0:npts))
+    do i=0,ntts
         phi=matmul(matrx,psi) 
         !write(*,*)phi
     !--------------------------------------------
+    !通过调用求逆矩阵的子程序来计算第二个矩阵的逆矩阵
         !print*,"test"
-        call inv_mat(matrx2,inv_matrx2)
+        call inv_mat(matrx2,inv_matrx2,npts)
         !print*,"test2"
-        inv_matrx2=matmul(matrx2,inv_matrx2)
+    !--------------------------------------------
+    !用逆矩阵左乘phi来计算出下一个时刻的波函数
+        !inv_matrx2=matmul(matrx2,inv_matrx2)
         !do i=0, 5 
         !      write(*,*)inv_matrx2(i,0:5)
         !end do
@@ -105,26 +108,33 @@ program gauss
         !do i=0,5
         !    write(*,*)psinx(i,0:5)
         !end do 
-        output(:,i:i)=psinx
+        output(:,i)=psinx
         psi=psinx
     end do
-    output(0:npts,0:0)=temp
+    output(0:npts,0)=temp
     output=abs(output)
-    allocate(realoutput(0:npts,0:npts))
+    allocate(realoutput(0:npts,0:ntts))
     realoutput=real(output)**2
-    do i=0,100
-        realoutput(i,0:0)=i*deltax
+    !这部分并没有实际意义，我尝试了去把波包最高点化为统一高度
+    !write(*,*)maxval(realoutput(0:100,0:0))
+    !do j=0,100
+    !    do i=0,100
+    !        realoutput(i:i,j:j)=realoutput(i:i,j:j)/maxval(realoutput(0:100,j:j))
+    !    end do
+    !end do 
+    do i=0,npts
+        realoutput(i,0)=i*deltax
     end do
     !write(*,*) realoutput
     open(1,file="realoutput.dat")
     write(1,'(a15)',advance='no')'x'
-    do i=1,100
+    do i=0,ntts-1
         write(temp1,'(a,i0)') 't',i
         write(1,'(a15)',advance='no')trim(temp1)
     end do
     write(1,*)'' 
-    do i=0,100
-        do j=0,100
+    do i=0,npts
+        do j=0,ntts
             write(1,'(f15.7)',advance='no')realoutput(i:i,j:j)
         end do
             write(1,*)''
