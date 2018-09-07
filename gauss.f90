@@ -51,7 +51,7 @@ program gauss
     allocate(B(0:npts))
     allocate(V(0:npts))
     V(:)=0
-    !V(10:15)=1
+    V(50:52)=0.1
     !V(85:90)=1
     do i=0, npts
         B(i)=cj*0.5*deltat*V(i)
@@ -141,7 +141,6 @@ program gauss
     end do
     close(1)
 end program
-
 
 function begin(x,Pi,cj)
     !函数在定义时只是再次说明一下变量类型，不可以再次赋值
