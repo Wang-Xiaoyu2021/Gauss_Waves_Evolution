@@ -12,8 +12,8 @@ program gauss
     real(DP)                  :: x0=0, xf=200, x, deltax=1, t=200, deltat=2
     real(DP),allocatable      :: realoutput(:,:)
     character(DP)             :: temp1
-    npts=(xf-x0)/deltax
-    ntts=t/deltat
+    npts=(xf-x0)/deltax !空间点数
+    ntts=t/deltat       !时间点数
     !------------------------------------------
     !定义初始时刻的波包形状，通过调用本程序内的一个子函数
     allocate(psi(0:npts))
@@ -122,6 +122,7 @@ program gauss
     !        realoutput(i:i,j:j)=realoutput(i:i,j:j)/maxval(realoutput(0:100,j:j))
     !    end do
     !end do 
+    !调整输出格式进行输出，将结果数据写入dat文件用oringe读取作图
     do i=0,npts
         realoutput(i,0)=i*deltax
     end do
