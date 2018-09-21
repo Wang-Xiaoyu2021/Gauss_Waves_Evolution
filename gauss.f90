@@ -51,7 +51,7 @@ program gauss
     allocate(B(0:npts))
     allocate(V(0:npts))
     V(:)=0
-    V(50:52)=0.1
+    !V(50:52)=0.1
     !V(85:90)=1
     do i=0, npts
         B(i)=cj*0.5*deltat*V(i)
