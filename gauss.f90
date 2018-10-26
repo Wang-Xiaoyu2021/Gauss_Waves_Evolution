@@ -12,7 +12,7 @@ program gauss
     integer(DP)               :: npts, i, j, ntts
     complex(DP),external      :: begin
     real(DP)                  :: x0=0, xf=200, x, deltax=1, t=200, deltat=2
-    real(DP),allocatable      :: realoutput(:,:)
+    real(DP),allocatable      :: realoutput(:,:)                 
     character(DP)             :: temp1
     npts=(xf-x0)/deltax !空间点数
     ntts=t/deltat       !时间点数
